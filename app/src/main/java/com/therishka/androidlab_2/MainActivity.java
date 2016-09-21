@@ -9,7 +9,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.therishka.androidlab_2.models.VkDialogResponse;
 import com.therishka.androidlab_2.network.RxVk;
 import com.vk.sdk.api.model.VKApiUser;
 import com.vk.sdk.api.model.VKList;
@@ -58,14 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mUserName.setText(getString(R.string.main_activity_user_name,
                         requestResult.get(0).first_name, requestResult.get(0).last_name));
             }
-        });
-
-        new RxVk().getDialogs(new RxVk.RxVkListener<VkDialogResponse>() {
-            @Override
-            public void requestFinished(VkDialogResponse requestResult) {
-                System.out.println(requestResult.getCount() + " " + requestResult.getDialogs().get(0).getVkMessage().getMessageBody());
-            }
-        });
+        }, 0);
     }
 
     private void showMainLayout() {

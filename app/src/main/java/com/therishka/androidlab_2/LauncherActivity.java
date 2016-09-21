@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
+import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 
@@ -16,7 +17,7 @@ public class LauncherActivity extends AppCompatActivity implements VKCallback<VK
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         if (!VKSdk.isLoggedIn()) {
-            VKSdk.login(this);
+            VKSdk.login(this, VKScope.MESSAGES);
         } else {
             toMainActivity();
         }

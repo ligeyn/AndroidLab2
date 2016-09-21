@@ -6,11 +6,12 @@ import com.therishka.androidlab_2.models.VkDialog;
 import com.therishka.androidlab_2.models.VkDialogResponse;
 import com.therishka.androidlab_2.models.VkFriend;
 import com.therishka.androidlab_2.models.VkMessage;
-import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKApi;
+import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKResponse;
-import com.vk.sdk.api.model.VKApiGetMessagesResponse;
+import com.vk.sdk.api.model.VKApiDialog;
+import com.vk.sdk.api.model.VKApiGetDialogResponse;
 import com.vk.sdk.api.model.VKApiMessage;
 import com.vk.sdk.api.model.VKApiUser;
 import com.vk.sdk.api.model.VKList;
@@ -33,14 +34,14 @@ import rx.schedulers.Schedulers;
 
 public class RxVk {
 
-    public void getUsers(final RxVkListener<VKList<VKApiUser>> listener) {
+    public void getUsers(final RxVkListener<VKList<VKApiUser>> listener, long userId) {
         Subscriber<VKList<VKApiUser>> usersSubscriber = Subscribers.create(new Action1<VKList<VKApiUser>>() {
             @Override
             public void call(VKList<VKApiUser> vkApiUsers) {
                 listener.requestFinished(vkApiUsers);
             }
         });
-        pGetUsers().subscribe(usersSubscriber);
+        pGetUsers(userId).subscribe(usersSubscriber);
     }
 
     public void getFriends(final RxVkListener<List<VkFriend>> listener) {
@@ -64,11 +65,13 @@ public class RxVk {
         pGetDialogs().subscribe(dialogsSubscriber);
     }
 
-    private Observable<VKList<VKApiUser>> pGetUsers() {
+    private Observable<VKList<VKApiUser>> pGetUsers(final long userId) {
         return Observable.fromEmitter(new Action1<AsyncEmitter<VKResponse>>() {
             @Override
             public void call(final AsyncEmitter<VKResponse> vkResponseAsyncEmitter) {
-                VKApi.users().get().executeWithListener(new RxVkRequestListener(vkResponseAsyncEmitter));
+                VKParameters parameters = userId != 0 ? VKParameters.from(VKApiConst.USER_IDS, userId)
+                        : null;
+                VKApi.users().get(parameters).executeWithListener(new RxVkRequestListener(vkResponseAsyncEmitter));
             }
         }, AsyncEmitter.BackpressureMode.LATEST)
                 .doOnError(new Action1<Throwable>() {
@@ -142,14 +145,16 @@ public class RxVk {
                     @Override
                     public Observable<VkDialogResponse> call(VKResponse vkResponse) {
                         Object parsedModel = vkResponse.parsedModel;
-                        if (parsedModel != null && parsedModel instanceof VKApiGetMessagesResponse) {
-                            VKApiGetMessagesResponse castedModel = ((VKApiGetMessagesResponse) parsedModel);
+                        if (parsedModel != null && parsedModel instanceof VKApiGetDialogResponse) {
+                            VKApiGetDialogResponse castedModel = ((VKApiGetDialogResponse) parsedModel);
                             VkDialogResponse response = new VkDialogResponse();
 
                             List<VkDialog> dialogs = new ArrayList<VkDialog>();
-                            for (VKApiMessage message : castedModel.items) {
+                            for (VKApiDialog castedDialog : castedModel.items) {
                                 VkDialog dialog = new VkDialog();
                                 VkMessage vkMessage = new VkMessage();
+
+                                VKApiMessage message = castedDialog.message;
 
                                 vkMessage.setDate(message.date);
                                 vkMessage.setId(message.id);
@@ -159,6 +164,8 @@ public class RxVk {
                                 vkMessage.setUser_id(message.user_id);
 
                                 dialog.setVkMessage(vkMessage);
+
+                                dialogs.add(dialog);
                             }
 
                             response.setCount(castedModel.count);
