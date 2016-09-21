@@ -18,11 +18,14 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".FriendsActivity"/>
         <activity
             android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"
             android:theme="@style/VK.Transparent"/>
         <activity android:name=".MainActivity">
+        </activity>
+        <activity android:name=".FriendsActivityOptimised">
         </activity>
     </application>
 

@@ -44,5 +44,6 @@ public class LauncherActivity extends AppCompatActivity implements VKCallback<VK
     private void toMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+        this.finish();
     }
 }
