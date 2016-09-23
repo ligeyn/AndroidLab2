@@ -18,14 +18,17 @@ public class VkDialog {
     @SerializedName("body")
     private String message;
 
+    private int is_read;
+
     public VkDialog() {
     }
 
-    public VkDialog(String username, String title, String photo, String message) {
+    public VkDialog(String username, String title, String photo, String message, int is_read) {
         this.username = username;
         this.title = title;
         this.photo = photo;
         this.message = message;
+        this.is_read = is_read;
     }
 
     public String getUsername() {
@@ -58,5 +61,13 @@ public class VkDialog {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public boolean is_read() {
+        return is_read == 1;
+    }
+
+    public void setIs_read(int is_read) {
+        this.is_read = is_read;
     }
 }

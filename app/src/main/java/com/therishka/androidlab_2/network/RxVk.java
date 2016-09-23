@@ -183,7 +183,8 @@ public class RxVk {
                 "+ \" \" + parItem[counter].last_name, " +
                 "\"title\": items[counter].message.title, " +
                 "\"body\":items[counter].message.body, " +
-                "\"photo_50\":parItem[counter].photo_50 }); " +
+                "\"photo_50\":parItem[counter].photo_50, " +
+                "\"is_read\":items[counter].message.read_state});" +
                 "counter = counter +1; } " +
                 "\n" +
                 "return {\"count\":size, \"dialogs\":result};";
