@@ -150,7 +150,7 @@ public class RxVk {
                             Gson gson = new Gson();
                             VkDialogResponse response = gson.fromJson(responseObjectIgnored, VkDialogResponse.class);
                             return Observable.just(response);
-                        }catch (JSONException e){
+                        } catch (JSONException e) {
                             return Observable.empty();
                         }
                     }
