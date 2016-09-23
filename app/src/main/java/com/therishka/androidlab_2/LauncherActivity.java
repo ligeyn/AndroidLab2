@@ -17,7 +17,7 @@ public class LauncherActivity extends AppCompatActivity implements VKCallback<VK
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         if (!VKSdk.isLoggedIn()) {
-            VKSdk.login(this, VKScope.MESSAGES);
+            VKSdk.login(this, VKScope.MESSAGES, VKScope.WALL, VKScope.FRIENDS);
         } else {
             toMainActivity();
         }
