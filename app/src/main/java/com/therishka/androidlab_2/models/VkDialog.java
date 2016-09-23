@@ -1,44 +1,62 @@
 package com.therishka.androidlab_2.models;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * @author Rishad Mustafaev.
  */
 
 public class VkDialog {
-    private VkMessage mVkMessage;
-    private long in_read;
-    private long out_read;
 
-    public VkDialog(VkMessage vkMessage, long in_read, long out_read) {
-        mVkMessage = vkMessage;
-        this.in_read = in_read;
-        this.out_read = out_read;
-    }
+    private String username;
+
+    private String title;
+
+    @SerializedName("photo_50")
+    private String photo;
+
+    @SerializedName("body")
+    private String message;
 
     public VkDialog() {
     }
 
-    public VkMessage getVkMessage() {
-        return mVkMessage;
+    public VkDialog(String username, String title, String photo, String message) {
+        this.username = username;
+        this.title = title;
+        this.photo = photo;
+        this.message = message;
     }
 
-    public void setVkMessage(VkMessage vkMessage) {
-        mVkMessage = vkMessage;
+    public String getUsername() {
+        return username;
     }
 
-    public long getIn_read() {
-        return in_read;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setIn_read(long in_read) {
-        this.in_read = in_read;
+    public String getTitle() {
+        return title;
     }
 
-    public long getOut_read() {
-        return out_read;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public void setOut_read(long out_read) {
-        this.out_read = out_read;
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

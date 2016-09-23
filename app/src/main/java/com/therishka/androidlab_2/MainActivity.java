@@ -9,6 +9,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.therishka.androidlab_2.models.VkDialog;
+import com.therishka.androidlab_2.models.VkDialogResponse;
 import com.therishka.androidlab_2.network.RxVk;
 import com.vk.sdk.api.model.VKApiUser;
 import com.vk.sdk.api.model.VKList;

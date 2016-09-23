@@ -2,19 +2,18 @@ package com.therishka.androidlab_2.network;
 
 import android.support.annotation.NonNull;
 
-import com.therishka.androidlab_2.models.VkDialog;
+import com.google.gson.Gson;
 import com.therishka.androidlab_2.models.VkDialogResponse;
 import com.therishka.androidlab_2.models.VkFriend;
-import com.therishka.androidlab_2.models.VkMessage;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKParameters;
+import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
-import com.vk.sdk.api.model.VKApiDialog;
-import com.vk.sdk.api.model.VKApiGetDialogResponse;
-import com.vk.sdk.api.model.VKApiMessage;
 import com.vk.sdk.api.model.VKApiUser;
 import com.vk.sdk.api.model.VKList;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +52,7 @@ public class RxVk {
         });
         pGetFriends(VKParameters.from("order", "hints", "fields", "name, photo_50, online"))
                 .subscribe(friendsSubscriber);
+
     }
 
     public void getDialogs(final RxVkListener<VkDialogResponse> listener) {
@@ -115,7 +115,7 @@ public class RxVk {
                             if (checkCast(VKApiUser.class, list)) {
                                 //noinspection unchecked
                                 VKList<VKApiUser> castedList = ((VKList<VKApiUser>) list);
-                                List<VkFriend> friends = new ArrayList<VkFriend>();
+                                List<VkFriend> friends = new ArrayList<>();
                                 for (VKApiUser user : castedList) {
                                     VkFriend friend = new VkFriend();
                                     friend.setName(user.first_name);
@@ -137,44 +137,22 @@ public class RxVk {
     private Observable<VkDialogResponse> pGetDialogs() {
         return Observable.fromEmitter(new Action1<AsyncEmitter<VKResponse>>() {
             @Override
-            public void call(AsyncEmitter<VKResponse> vkDialogAsyncEmitter) {
-                VKApi.messages().getDialogs().executeWithListener(new RxVkRequestListener(vkDialogAsyncEmitter));
+            public void call(AsyncEmitter<VKResponse> responseEmitter) {
+                new VKRequest("execute", VKParameters.from("code", getJavaScriptCode()))
+                        .executeWithListener(new RxVkRequestListener(responseEmitter));
             }
         }, AsyncEmitter.BackpressureMode.LATEST)
                 .flatMap(new Func1<VKResponse, Observable<VkDialogResponse>>() {
                     @Override
                     public Observable<VkDialogResponse> call(VKResponse vkResponse) {
-                        Object parsedModel = vkResponse.parsedModel;
-                        if (parsedModel != null && parsedModel instanceof VKApiGetDialogResponse) {
-                            VKApiGetDialogResponse castedModel = ((VKApiGetDialogResponse) parsedModel);
-                            VkDialogResponse response = new VkDialogResponse();
-
-                            List<VkDialog> dialogs = new ArrayList<VkDialog>();
-                            for (VKApiDialog castedDialog : castedModel.items) {
-                                VkDialog dialog = new VkDialog();
-                                VkMessage vkMessage = new VkMessage();
-
-                                VKApiMessage message = castedDialog.message;
-
-                                vkMessage.setDate(message.date);
-                                vkMessage.setId(message.id);
-                                vkMessage.setMessageBody(message.body);
-                                vkMessage.setRead(message.read_state);
-                                vkMessage.setTitle(message.title);
-                                vkMessage.setUser_id(message.user_id);
-
-                                dialog.setVkMessage(vkMessage);
-
-                                dialogs.add(dialog);
-                            }
-
-                            response.setCount(castedModel.count);
-                            response.setDialogs(dialogs);
-
+                        try {
+                            String responseObjectIgnored = vkResponse.json.getJSONObject("response").toString();
+                            Gson gson = new Gson();
+                            VkDialogResponse response = gson.fromJson(responseObjectIgnored, VkDialogResponse.class);
                             return Observable.just(response);
+                        }catch (JSONException e){
+                            return Observable.empty();
                         }
-
-                        return Observable.empty();
                     }
                 });
     }
@@ -185,5 +163,29 @@ public class RxVk {
 
     public interface RxVkListener<T> {
         void requestFinished(T requestResult);
+    }
+
+    // sorry for that shitcode. But that damn VKAPI doesn't provide other options.
+    private String getJavaScriptCode() {
+        return "var dialogs = API.messages.getDialogs({\"count\":20}); " +
+                "var items = dialogs.items; " +
+                "var size = dialogs.items.length; " +
+                "var counter = 0; " +
+                "var parItem = []; " +
+                "while(counter < size){ " +
+                "parItem.push( API.users.get({\"user_ids\":items[counter].message.user_id, " +
+                "\"fields\":\"photo_50\"})[0]); counter = counter+1; " +
+                "} counter = 0; " +
+                "size = parItem.length; " +
+                "var result = []; " +
+                "while(counter < size){ " +
+                "result.push({\"username\" : parItem[counter].first_name " +
+                "+ \" \" + parItem[counter].last_name, " +
+                "\"title\": items[counter].message.title, " +
+                "\"body\":items[counter].message.body, " +
+                "\"photo_50\":parItem[counter].photo_50 }); " +
+                "counter = counter +1; } " +
+                "\n" +
+                "return {\"count\":size, \"dialogs\":result};";
     }
 }
