@@ -31,6 +31,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Button toFriendsOptimisedBtn = (Button) findViewById(R.id.to_friends_activity_optimised);
         toFriendsOptimisedBtn.setOnClickListener(this);
+        Button toMassegeBtn = (Button) findViewById(R.id.massageAction);
+        toMassegeBtn.setOnClickListener(this);
+        Button toNewsBtn = (Button) findViewById(R.id.newsAction);
+        toNewsBtn.setOnClickListener(this);
 
         setUserNameAndShowButtons();
     }
@@ -44,6 +48,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.to_friends_activity_optimised:
                 toFriendsOptimised();
                 break;
+            case R.id.massageAction:
+                toMassage();
+                break;
+            case R.id.newsAction:
+                toNews();
         }
     }
 
@@ -78,5 +87,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void toFriendsOptimised() {
         Intent friendsIntent = new Intent(this, FriendsActivityOptimised.class);
         startActivity(friendsIntent);
+    }
+    private void toMassage(){
+        Intent massage = new Intent(this, Activity.class);
+        startActivity(massage);
+    }
+    private void toNews(){
+        Intent news = new Intent(this, NewsActivity.class);
+        startActivity(news);
     }
 }
